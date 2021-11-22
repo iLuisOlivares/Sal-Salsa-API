@@ -53,5 +53,39 @@ namespace Restaurante_sal_salsa.Controllers
 
             return new JsonResult(table); //return the json
         }
+
+        // Delete Empleado
+        [HttpDelete("{id}")]
+        public JsonResult Delete(int id)
+        {
+            string query = @"
+                        DELETE FROM empleado 
+                        WHERE id=@EmpleadoId;
+            ";
+
+            DataTable table = new DataTable();
+            // Bring the pool connetion from appsetting.json
+            string sqlDataSource = _configuration.GetConnectionString("TestAppCon");
+            MySqlDataReader myReader;
+            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
+            {
+                mycon.Open(); // open connection
+                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
+                {
+                    // change @EmpleadoId in the query by id from the body.params
+                    myCommand.Parameters.AddWithValue("@EmpleadoId", id);
+
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    mycon.Close(); // close connection
+                }
+            }
+
+            return new JsonResult("Deleted Successfully"); //return the json
+        }
+
+
     }
 }
