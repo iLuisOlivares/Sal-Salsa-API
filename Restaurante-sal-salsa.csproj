@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Restaurante_sal_salsa</RootNamespace>
+    <UserSecretsId>ee8383bc-f66d-4453-8985-5c282be45dc2</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
