@@ -147,6 +147,45 @@ namespace Restaurante_sal_salsa.Controllers
             return new JsonResult("Deleted Successfully"); //return the json
         }
 
+        [HttpPut]
+        public JsonResult Put(Models.Cliente clienteData)
+        {
+            string query = @"
+                        UPDATE cliente SET 
+                        nombre_usuario =@ClienteNombreUsuario,
+                        contrasena =@ClienteContrasena,
+                        nombre_completo =@ClienteNombre_completo,
+                        correo= @ClienteCorreo,
+                        tipo_usuario =@ClienteTipo
+                        WHERE id =@ClienteId;
+                        
+            ";
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("TestAppCon");
+            MySqlDataReader myReader;
+            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
+            {
+                mycon.Open();
+                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
+                {
+                    myCommand.Parameters.AddWithValue("@ClienteId", clienteData.id);
+                    myCommand.Parameters.AddWithValue("@ClienteNombreUsuario", clienteData.nombre_usuario);
+                    myCommand.Parameters.AddWithValue("@ClienteContrasena", clienteData.contrasena);
+                    myCommand.Parameters.AddWithValue("@ClienteNombre_completo", clienteData.nombre_completo);
+                    myCommand.Parameters.AddWithValue("@ClienteCorreo", clienteData.correo);
+                    myCommand.Parameters.AddWithValue("@ClienteTipo", clienteData.tipo_usuario);
+
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    mycon.Close();
+                }
+            }
+
+            return new JsonResult("Updated Successfully");
+        }
 
     }
 }
