@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
+using Restaurante_sal_salsa.Models;
 
 namespace Restaurante_sal_salsa.Controllers
 {
@@ -82,6 +83,38 @@ namespace Restaurante_sal_salsa.Controllers
 
         }
 
+        [HttpPost]
+        public JsonResult Post(Models.Cliente clienteData)
+        {
+            string query = @"
+                        INSERT INTO cliente (nombre_usuario, contrasena, nombre_completo, correo)
+                        VALUES (@Enombre_usuario, @Econtrasena, @Enombre_completo, @Ecorreo) ;         
+            ";
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("TestAppCon");
+            MySqlDataReader myReader;
+            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
+            {
+                mycon.Open();
+                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
+                {
+                    myCommand.Parameters.AddWithValue("@Enombre_usuario", clienteData.nombre_usuario);
+                    myCommand.Parameters.AddWithValue("@Econtrasena", clienteData.contrasena);
+                    myCommand.Parameters.AddWithValue("@Enombre_completo", clienteData.nombre_completo);
+                    myCommand.Parameters.AddWithValue("@Ecorreo", clienteData.correo);
+
+
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    mycon.Close();
+                }
+            }
+
+            return new JsonResult("Added Successfully");
+        }
 
         [HttpDelete("{id}")]
         public JsonResult Delete(int id)
