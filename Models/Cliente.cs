@@ -13,6 +13,5 @@ namespace Restaurante_sal_salsa.Models
         public string nombre_completo { get; set; }
         public string correo { get; set; }
         public string tipo_usuario { get; set; }
-
     }
 }
