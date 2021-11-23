@@ -15,12 +15,12 @@ namespace Restaurante_sal_salsa.Controllers
 
     [Route("api/[controller]")]
     [ApiController]
-    public class ClienteController : ControllerBase
+    public class ComentarioController : ControllerBase
     {
-        private IConfiguration _configuration; // get data => pass to .net data
-        private IWebHostEnvironment _env; // which resource i do petition
+        private IConfiguration _configuration;
+        private IWebHostEnvironment _env;
 
-        public ClienteController(IConfiguration configuration, IWebHostEnvironment env)
+        public ComentarioController(IConfiguration configuration, IWebHostEnvironment env)
         {
             _configuration = configuration;
             _env = env;
@@ -30,7 +30,7 @@ namespace Restaurante_sal_salsa.Controllers
         public JsonResult Get()
         {
             string query = @"
-                        SELECT * FROM cliente
+                        SELECT * FROM comentario
             ";
 
             DataTable table = new DataTable();
@@ -53,12 +53,12 @@ namespace Restaurante_sal_salsa.Controllers
             return new JsonResult(table);
         }
 
-        [HttpGet("{nombre_usuario}")]
-        public JsonResult GetOne(String nombre_usuario)
+        [HttpGet("{id}")]
+        public JsonResult GetOne(int id)
         {
             string query = @"
-                        SELECT * FROM cliente                        
-                        WHERE nombre_usuario=@ClienteId;
+                        SELECT * FROM comentario                        
+                        WHERE id=@ComentarioId;
             ";
 
             DataTable table = new DataTable();
@@ -70,13 +70,13 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open(); // open connection
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@ClienteId", nombre_usuario);
+                    myCommand.Parameters.AddWithValue("@ComentarioId", id);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
 
                     myReader.Close();
-                    mycon.Close(); 
+                    mycon.Close();
                 }
             }
             return new JsonResult(table);
@@ -84,11 +84,11 @@ namespace Restaurante_sal_salsa.Controllers
         }
 
         [HttpPost]
-        public JsonResult Post(Models.Cliente clienteData)
+        public JsonResult Post(Models.Comentario comentarioData)
         {
             string query = @"
-                        INSERT INTO cliente (nombre_usuario, contrasena, nombre_completo, correo)
-                        VALUES (@Enombre_usuario, @Econtrasena, @Enombre_completo, @Ecorreo) ;         
+                        INSERT INTO comentario (cliente_id, comentario)
+                        VALUES (@Ecliente_id, @Ecomentario) ;         
             ";
 
             DataTable table = new DataTable();
@@ -99,11 +99,8 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open();
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@Enombre_usuario", clienteData.nombre_usuario);
-                    myCommand.Parameters.AddWithValue("@Econtrasena", clienteData.contrasena);
-                    myCommand.Parameters.AddWithValue("@Enombre_completo", clienteData.nombre_completo);
-                    myCommand.Parameters.AddWithValue("@Ecorreo", clienteData.correo);
-
+                    myCommand.Parameters.AddWithValue("@Ecliente_id", comentarioData.cliente_id);
+                    myCommand.Parameters.AddWithValue("@Ecomentario", comentarioData.comentario);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -120,47 +117,12 @@ namespace Restaurante_sal_salsa.Controllers
         public JsonResult Delete(int id)
         {
             string query = @"
-                        DELETE FROM cliente 
-                        WHERE id=@ClienteId;
+                        DELETE FROM comentario 
+                        WHERE id=@id;
             ";
 
             DataTable table = new DataTable();
-            // Bring the pool connetion from appsetting.json
-            string sqlDataSource = _configuration.GetConnectionString("TestAppCon");
-            MySqlDataReader myReader;
-            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
-            {
-                mycon.Open(); // open connection
-                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
-                {
-                    // change @EmpleadoId in the query by id from the body.params
-                    myCommand.Parameters.AddWithValue("@ClienteId", id);
 
-                    myReader = myCommand.ExecuteReader();
-                    table.Load(myReader);
-
-                    myReader.Close();
-                    mycon.Close(); // close connection
-                }
-            }
-
-            return new JsonResult("Deleted Successfully"); //return the json
-        }
-
-        [HttpPut]
-        public JsonResult Put(Models.Cliente clienteData)
-        {
-            string query = @"
-                        UPDATE cliente SET 
-                        nombre_usuario =@ClienteNombreUsuario,
-                        contrasena =@ClienteContrasena,
-                        nombre_completo =@ClienteNombre_completo,
-                        correo= @ClienteCorreo,
-                        tipo_usuario =@ClienteTipo
-                        WHERE id =@ClienteId;
-            ";
-
-            DataTable table = new DataTable();
             string sqlDataSource = _configuration.GetConnectionString("TestAppCon");
             MySqlDataReader myReader;
             using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
@@ -168,12 +130,7 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open();
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@ClienteId", clienteData.id);
-                    myCommand.Parameters.AddWithValue("@ClienteNombreUsuario", clienteData.nombre_usuario);
-                    myCommand.Parameters.AddWithValue("@ClienteContrasena", clienteData.contrasena);
-                    myCommand.Parameters.AddWithValue("@ClienteNombre_completo", clienteData.nombre_completo);
-                    myCommand.Parameters.AddWithValue("@ClienteCorreo", clienteData.correo);
-                    myCommand.Parameters.AddWithValue("@ClienteTipo", clienteData.tipo_usuario);
+                    myCommand.Parameters.AddWithValue("@id", id);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -183,8 +140,10 @@ namespace Restaurante_sal_salsa.Controllers
                 }
             }
 
-            return new JsonResult("Updated Successfully");
+            return new JsonResult("Deleted Successfully");
         }
+
+        // No put comentario
 
     }
 }
