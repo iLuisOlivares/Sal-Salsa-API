@@ -1,39 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
-using Restaurante_sal_salsa.Models;
+using System.Data;
 
 namespace Restaurante_sal_salsa.Controllers
 {
-
     [Route("api/[controller]")]
     [ApiController]
-    public class ReservaController : ControllerBase
+    public class RestauranteController : ControllerBase
     {
-        private IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
         private IWebHostEnvironment _env;
 
-        public ReservaController(IConfiguration configuration, IWebHostEnvironment env)
+        public RestauranteController(IConfiguration configuration, IWebHostEnvironment env)
         {
             _configuration = configuration;
             _env = env;
         }
 
+        //consulta de servicios
         [HttpGet]
         public JsonResult Get()
         {
             string query = @"
-                       SELECT servicio.nombre as servicio_nombre, reserva.*
-                        FROM reserva
-                        LEFT JOIN servicio
-                        ON reserva.servicio_id = servicio.id;
+                        SELECT *
+                        FROM 
+                        restaurante
             ";
 
             DataTable table = new DataTable();
@@ -59,8 +53,8 @@ namespace Restaurante_sal_salsa.Controllers
         public JsonResult GetOne(int id)
         {
             string query = @"
-                        SELECT * FROM reserva                        
-                        WHERE id=@ReservaId;
+                        SELECT * FROM restaurante                        
+                        WHERE id=@Eid;
             ";
 
             DataTable table = new DataTable();
@@ -71,7 +65,7 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open();
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@ReservaId", id);
+                    myCommand.Parameters.AddWithValue("@Eid", id);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -85,11 +79,11 @@ namespace Restaurante_sal_salsa.Controllers
         }
 
         [HttpPost]
-        public JsonResult Post(Models.Reserva reservaData)
+        public JsonResult Post(Models.Restaurante restauranteData)
         {
             string query = @"
-                        INSERT INTO reserva (cliente_id, servicio_id, estado, fecha, asunto,correo,celular,cantidad_personas, nombre_referencia)
-                        VALUES (@Ecliente_id, @Eservicio_id, @Eestado, @Efecha, @Easunto, @Ecorreo,@Ecelular,@Ecantidad_personas,@Enombre_referencia);         
+                        INSERT INTO servicio (nombre, descripcion, imagen,historia)
+                        VALUES (@Enombre, @Edescripcion, @Eimagen,@Ehistoria);         
             ";
 
             DataTable table = new DataTable();
@@ -100,15 +94,10 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open();
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@Ecliente_id", reservaData.cliente_id);
-                    myCommand.Parameters.AddWithValue("@Enombre_referencia", reservaData.nombre_referencia);
-                    myCommand.Parameters.AddWithValue("@Eservicio_id", reservaData.servicio_id);
-                    myCommand.Parameters.AddWithValue("@Eestado", reservaData.estado);
-                    myCommand.Parameters.AddWithValue("@Efecha", reservaData.fecha);
-                    myCommand.Parameters.AddWithValue("@Easunto", reservaData.asunto);
-                    myCommand.Parameters.AddWithValue("@Ecorreo", reservaData.correo);
-                    myCommand.Parameters.AddWithValue("@Ecelular", reservaData.celular);
-                    myCommand.Parameters.AddWithValue("@Ecantidad_personas", reservaData.cantidad_personas);
+                    myCommand.Parameters.AddWithValue("@Enombre", restauranteData.nombre);
+                    myCommand.Parameters.AddWithValue("@Edescripcion", restauranteData.descripcion);
+                    myCommand.Parameters.AddWithValue("@Eimagen", restauranteData.imagen);
+                    myCommand.Parameters.AddWithValue("@Ehistoria", restauranteData.historia);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -125,8 +114,8 @@ namespace Restaurante_sal_salsa.Controllers
         public JsonResult Delete(int id)
         {
             string query = @"
-                        DELETE FROM reserva 
-                        WHERE id=@ReservaId;
+                        DELETE FROM restaurante 
+                        WHERE id=@RestauranteId;
             ";
 
             DataTable table = new DataTable();
@@ -137,7 +126,7 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open();
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@ReservaId", id);
+                    myCommand.Parameters.AddWithValue("@RestauranteId", id);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
@@ -151,12 +140,15 @@ namespace Restaurante_sal_salsa.Controllers
         }
 
         [HttpPut]
-        public JsonResult Put(Models.Reserva reservaData)
+        public JsonResult Put(Models.Restaurante restauranteData)
         {
             string query = @"
-                        UPDATE reserva SET 
-                        estado =@Eestado
-                        WHERE id =@ReservaId;   
+                        UPDATE restaurante SET 
+                        nombre =@Enombre,
+                        descripcion =@Edescripcion,
+                        historia = @Ehistoria,
+                        imagen =@Eimagen
+                        WHERE id =@EId;   
             ";
 
             DataTable table = new DataTable();
@@ -167,8 +159,11 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open();
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@ReservaId", reservaData.id);
-                    myCommand.Parameters.AddWithValue("@Eestado", reservaData.estado);
+                    myCommand.Parameters.AddWithValue("@EId", restauranteData.id);
+                    myCommand.Parameters.AddWithValue("@Enombre", restauranteData.nombre);
+                    myCommand.Parameters.AddWithValue("@Edescripcion", restauranteData.descripcion);
+                    myCommand.Parameters.AddWithValue("@Eimagen", restauranteData.imagen);
+                    myCommand.Parameters.AddWithValue("@Ehistoria", restauranteData.historia);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);

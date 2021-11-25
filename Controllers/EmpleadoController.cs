@@ -54,6 +54,39 @@ namespace Restaurante_sal_salsa.Controllers
             return new JsonResult(table); //return the json
         }
 
+        [HttpPost]
+        public JsonResult Post(Models.Empleado empleadoData)
+        {
+            string query = @"
+                        INSERT INTO empleado (restaurante_id, nombre, descripcion, imagen)
+                        VALUES (@Erestaurante_id, @Enombre, @Edescripcion, @Eimagen);         
+            ";
+
+            DataTable table = new DataTable();
+            string sqlDataSource = _configuration.GetConnectionString("TestAppCon");
+            MySqlDataReader myReader;
+            using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
+            {
+                mycon.Open();
+                using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
+                {
+                    myCommand.Parameters.AddWithValue("@Erestaurante_id", empleadoData.restaurante_id);
+                    myCommand.Parameters.AddWithValue("@Enombre", empleadoData.nombre);
+                    myCommand.Parameters.AddWithValue("@Edescripcion", empleadoData.descripcion);
+                    myCommand.Parameters.AddWithValue("@Eimagen", empleadoData.imagen);
+            
+
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+
+                    myReader.Close();
+                    mycon.Close();
+                }
+            }
+
+            return new JsonResult("Added Successfully");
+        }
+
         // Delete Empleado
         [HttpDelete("{id}")]
         public JsonResult Delete(int id)

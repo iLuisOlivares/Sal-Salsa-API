@@ -30,7 +30,10 @@ namespace Restaurante_sal_salsa.Controllers
         public JsonResult Get()
         {
             string query = @"
-                        SELECT * FROM comentario
+                       SELECT cliente.nombre_completo, comentario.*
+                        FROM comentario 
+                        LEFT JOIN cliente 
+                        ON comentario.cliente_id = cliente.id;
             ";
 
             DataTable table = new DataTable();
@@ -87,8 +90,8 @@ namespace Restaurante_sal_salsa.Controllers
         public JsonResult Post(Models.Comentario comentarioData)
         {
             string query = @"
-                        INSERT INTO comentario (cliente_id, comentario)
-                        VALUES (@Ecliente_id, @Ecomentario) ;         
+                        INSERT INTO comentario (cliente_id, comentario,fecha)
+                        VALUES (@Ecliente_id, @Ecomentario,@Efecha ) ;         
             ";
 
             DataTable table = new DataTable();
@@ -101,7 +104,7 @@ namespace Restaurante_sal_salsa.Controllers
                 {
                     myCommand.Parameters.AddWithValue("@Ecliente_id", comentarioData.cliente_id);
                     myCommand.Parameters.AddWithValue("@Ecomentario", comentarioData.comentario);
-
+                    myCommand.Parameters.AddWithValue("@Efecha", comentarioData.fecha);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
 

@@ -10,5 +10,6 @@ namespace Restaurante_sal_salsa.Models
         public int id { get; set; }
         public int cliente_id { get; set; }
         public string comentario { get; set; }
+        public string fecha { get; set; }
     }
 }

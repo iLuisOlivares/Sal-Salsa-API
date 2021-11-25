@@ -52,12 +52,12 @@ namespace Restaurante_sal_salsa.Controllers
             return new JsonResult(table);
         }
 
-        [HttpGet("{id}")]
-        public JsonResult GetOne(int id)
+        [HttpGet("{cliente_id}")]
+        public JsonResult GetOne(int cliente_id)
         {
             string query = @"
-                        SELECT * FROM pedido                        
-                        WHERE id=@PedidoId;
+                         SELECT pedido.*, plato.* FROM pedido left Join plato on pedido.plato_id = plato.id                       
+                        WHERE cliente_id=@Ecliente_id;
             ";
 
             DataTable table = new DataTable();
@@ -68,7 +68,7 @@ namespace Restaurante_sal_salsa.Controllers
                 mycon.Open();
                 using (MySqlCommand myCommand = new MySqlCommand(query, mycon))
                 {
-                    myCommand.Parameters.AddWithValue("@PedidoId", id);
+                    myCommand.Parameters.AddWithValue("@Ecliente_id", cliente_id);
 
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
